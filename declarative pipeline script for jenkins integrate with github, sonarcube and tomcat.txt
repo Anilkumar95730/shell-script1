@@ -1,0 +1,27 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('checkout') {
+            steps {
+                git branch: 'main', url: 'https://github.com/sirishar02/project1.git'
+            }
+        }
+        stage('build') {
+            steps {
+                sh'mvn clean package'
+            }
+        }
+        stage('sonar code analysis') {
+            steps {
+                withSonarQubeEnv(credentialsId: 'sonarcub1',installationName: 'sonarqube') {sh "mvn sonar:sonar"
+}
+            }
+        }
+         stage('deploy') {
+            steps {
+               deploy adapters: [tomcat9(credentialsId: 'tomcat4', path: '', url: 'http://3.110.218.192:8080/')], contextPath: 'deploy', war: '**/*.war'
+            }
+        }
+    }
+}
